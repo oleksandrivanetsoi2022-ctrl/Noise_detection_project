@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 
 #include "board_init.h"
+#include "board_clock.h"
 
 /* USER CODE END Includes */
 
@@ -118,6 +119,8 @@ int main(void)
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
+
+  Board_SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
 
