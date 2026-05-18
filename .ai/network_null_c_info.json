@@ -1940,44 +1940,44 @@
   ],
   "environment": {
     "generated_model": {
-      "generated_time": "2026-05-18T10:49:09+0300",
+      "generated_time": "2026-05-18T11:34:12+0300",
       "model_files": [
         {
           "name": "network_data_params.h",
-          "signature": "0x118e26e5baecf2852dee83a03b82804a"
+          "signature": "0xcd184f7d43b60c4aa45c0b779309162f"
         },
         {
           "name": "network_data_params.c",
-          "signature": "0x0e8e77100051f095da7e3059c28ee0a6"
+          "signature": "0xeb0f68a59d02d7a4324e84448a6942ff"
         },
         {
           "name": "network_data.h",
-          "signature": "0x33558c94b992df45d6cd95e1f0bb3d96"
+          "signature": "0xe8ef6ad5737bfdd3e50224f28db6f896"
         },
         {
           "name": "network_data.c",
-          "signature": "0x12e791c94fc0f54394b8424e29dac9e0"
+          "signature": "0x7d0797945fa1186e30c40d32d4cdb1f9"
         },
         {
           "name": "network_config.h",
-          "signature": "0x9e3e2cccd755b0767c2c98cce24e45aa"
+          "signature": "0xf758851b82674473767b8bd33cae7ee1"
         },
         {
           "name": "network.h",
-          "signature": "0xf3f45e2b7f512a342f6fc16fdf7bc305"
+          "signature": "0x800ea26114fd36d9e6b30214d6b1d4f6"
         },
         {
           "name": "network.c",
-          "signature": "0xa6ba30ba3f12cbb435b592e62d453efa"
+          "signature": "0x91acdeff47d91646f6c20c5c8826e1fe"
         }
       ],
       "name": "network"
     },
-    "network_signature": "0x214270da4ed8f309",
+    "network_signature": "0x2c7801d0c924ce9e",
     "test_name": "",
     "tools": [
       {
-        "arguments": "generate --target stm32h7 --name network -m C:/AI/drone_mel_ipd_int8.tflite --compression none --verbosity 1 --workspace C:/Users/D/AppData/Local/Temp/mxAI_workspace1423255845327004274927790465406229 --output C:/Users/D/.stm32cubemx/network_output",
+        "arguments": "generate --target stm32h7 --name network -m C:/AI/drone_mel_ipd_int8.tflite --compression none --verbosity 1 --workspace C:/Users/D/AppData/Local/Temp/mxAI_workspace1450344057913006613912667494574817 --output C:/Users/D/.stm32cubemx/network_output",
         "environment": [
           "STATS_TYPE=X-CUBE-AI"
         ],

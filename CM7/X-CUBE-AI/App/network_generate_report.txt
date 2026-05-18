@@ -1,6 +1,6 @@
 ST Edge AI Core v2.2.0-20266 2adc00962
-Created date          : 2026-05-18 10:49:11
-Parameters            : generate --target stm32h7 --name network -m C:/AI/drone_mel_ipd_int8.tflite --compression none --verbosity 1 --workspace C:/Users/D/AppData/Local/Temp/mxAI_workspace1423255845327004274927790465406229 --output C:/Users/D/.stm32cubemx/network_output
+Created date          : 2026-05-18 11:34:14
+Parameters            : generate --target stm32h7 --name network -m C:/AI/drone_mel_ipd_int8.tflite --compression none --verbosity 1 --workspace C:/Users/D/AppData/Local/Temp/mxAI_workspace1450344057913006613912667494574817 --output C:/Users/D/.stm32cubemx/network_output
 
 Exec/report summary (generate)
 ------------------------------------------------------------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ compression        :   none
 options            :   allocate-inputs, allocate-outputs                                                                            
 optimization       :   balanced                                                                                                     
 target/series      :   stm32h7                                                                                                      
-workspace dir      :   C:\Users\D\AppData\Local\Temp\mxAI_workspace1423255845327004274927790465406229                               
+workspace dir      :   C:\Users\D\AppData\Local\Temp\mxAI_workspace1450344057913006613912667494574817                               
 output dir         :   C:\Users\D\.stm32cubemx\network_output                                                                       
 model_fmt          :   ss/sa per tensor                                                                                             
 model_name         :   drone_mel_ipd_int8                                                                                           

@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    network.c
   * @author  AST Embedded Analytics Research Platform
-  * @date    2026-05-18T10:49:09+0300
+  * @date    2026-05-18T11:34:12+0300
   * @brief   AI Tool Automatic Code Generator for Embedded NN computing
   ******************************************************************************
   * @attention
@@ -42,7 +42,7 @@
 #endif
 
 #undef AI_TOOLS_DATE_TIME
-#define AI_TOOLS_DATE_TIME   "2026-05-18T10:49:09+0300"
+#define AI_TOOLS_DATE_TIME   "2026-05-18T11:34:12+0300"
 
 #undef AI_TOOLS_COMPILE_TIME
 #define AI_TOOLS_COMPILE_TIME    __DATE__ " " __TIME__
@@ -953,7 +953,7 @@ AI_NETWORK_OBJ_DECLARE(
     94136, NULL, NULL),
   AI_TENSOR_LIST_IO_OBJ_INIT(AI_FLAG_NONE, AI_NETWORK_IN_NUM, &serving_default_input_mel_ipd0_output),
   AI_TENSOR_LIST_IO_OBJ_INIT(AI_FLAG_NONE, AI_NETWORK_OUT_NUM, &nl_10_output),
-  &conv2d_0_pad_before_layer, 0x214270da, NULL)
+  &conv2d_0_pad_before_layer, 0x2c7801d0, NULL)
 
 #else
 
@@ -973,7 +973,7 @@ AI_NETWORK_OBJ_DECLARE(
   ),
   AI_TENSOR_LIST_IO_OBJ_INIT(AI_FLAG_NONE, AI_NETWORK_IN_NUM, &serving_default_input_mel_ipd0_output),
   AI_TENSOR_LIST_IO_OBJ_INIT(AI_FLAG_NONE, AI_NETWORK_OUT_NUM, &nl_10_output),
-  &conv2d_0_pad_before_layer, 0x214270da, NULL)
+  &conv2d_0_pad_before_layer, 0x2c7801d0, NULL)
 
 #endif	/*(AI_TOOLS_API_VERSION < AI_TOOLS_API_VERSION_1_5)*/
 
@@ -1142,7 +1142,7 @@ ai_bool ai_network_get_info(
       .params            = AI_STRUCT_INIT,
       .activations       = AI_STRUCT_INIT,
       .n_nodes           = 0,
-      .signature         = 0x214270da,
+      .signature         = 0x2c7801d0,
     };
 
     if (!ai_platform_api_get_network_report(network, &r)) return false;
@@ -1190,7 +1190,7 @@ ai_bool ai_network_get_report(
       .map_weights       = AI_STRUCT_INIT,
       .map_activations   = AI_STRUCT_INIT,
       .n_nodes           = 0,
-      .signature         = 0x214270da,
+      .signature         = 0x2c7801d0,
     };
 
     if (!ai_platform_api_get_network_report(network, &r)) return false;

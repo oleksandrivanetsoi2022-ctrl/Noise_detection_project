@@ -9,6 +9,9 @@ extern "C" {
 
 #define DSP_FFT_SIZE 256U
 #define DSP_MFCC_FEATURES 40U
+#define DSP_MEL_BINS 40U
+#define DSP_DCT_BINS 40U
+#define DSP_DOA_MAX_SAMPLES 256U
 
 void Extract_MFCC(float32_t *pAudioBuffer, float32_t *pMfccOut);
 uint16_t Calculate_DOA(const float32_t *pAudioBuffer, uint32_t length);
