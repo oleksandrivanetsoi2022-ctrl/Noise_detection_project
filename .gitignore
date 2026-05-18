@@ -1,0 +1,23 @@
+# STM32CubeIDE
+**/Debug/
+**/Release/
+**/*.elf
+**/*.map
+**/*.list
+**/*.o
+**/*.d
+**/*.a
+**/*.su
+**/*.hex
+**/*.bin
+**/startup/*.o
+
+# CubeMX metadata
+*.mxproject
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
