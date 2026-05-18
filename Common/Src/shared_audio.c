@@ -1,4 +1,4 @@
-#include "shared_audio.h"
+#include "../Inc/shared_audio.h"
 
 SHARED_AUDIO_SECTION SharedAudioFrame g_shared_audio_frame = {
   .ready = 0U,

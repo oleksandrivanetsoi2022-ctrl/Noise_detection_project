@@ -3,6 +3,173 @@
 #include <math.h>
 #include <string.h>
 
+/* Log-Mel frontend static data */
+static float32_t s_lm_window[DSP_LM_FFT_SIZE];
+static float32_t s_lm_fft_in[DSP_LM_FFT_SIZE];
+static float32_t s_lm_fft_out[DSP_LM_FFT_SIZE];
+static float32_t s_lm_power[(DSP_LM_FFT_SIZE / 2U)];
+static float32_t s_lm_filters[DSP_LM_MEL_BINS][(DSP_LM_FFT_SIZE / 2U)];
+static uint8_t s_lm_ready = 0U;
+
+static void DSP_InitLogMel(void)
+{
+  uint32_t i, m, k;
+  const uint32_t n_fft = DSP_LM_FFT_SIZE;
+  const uint32_t n_bins = n_fft / 2U;
+  const uint32_t n_mels = DSP_LM_MEL_BINS;
+
+  /* Hann window */
+  for (i = 0U; i < n_fft; i++)
+  {
+    float32_t phase = (2.0f * PI * (float32_t)i) / (float32_t)(n_fft - 1U);
+    s_lm_window[i] = 0.5f - 0.5f * arm_cos_f32(phase);
+  }
+
+  /* Build mel filterbank (triangular) using HTK-style mel scale approximation */
+  float32_t sr = 16000.0f;
+  float32_t fmax = sr / 2.0f;
+  /* helper functions */
+  float32_t hz_to_mel_f(float32_t f) { return 2595.0f * log10f(1.0f + f / 700.0f); }
+  float32_t mel_to_hz_f(float32_t m) { return 700.0f * (powf(10.0f, m / 2595.0f) - 1.0f); }
+
+  float32_t mel_low = hz_to_mel_f(0.0f);
+  float32_t mel_high = hz_to_mel_f(fmax);
+
+  for (m = 0U; m < n_mels + 2U; m++)
+  {
+    /* compute bin centers later in loop */
+  }
+
+  /* compute mel bin edges in Hz and then to fft bin indices */
+  float32_t mel_points[DSP_LM_MEL_BINS + 2U];
+  uint32_t bin_points[DSP_LM_MEL_BINS + 2U];
+  for (m = 0U; m < n_mels + 2U; m++)
+  {
+    float32_t mel = mel_low + (mel_high - mel_low) * (float32_t)m / (float32_t)(n_mels + 1U);
+    float32_t hz = mel_to_hz_f(mel);
+    mel_points[m] = hz;
+    uint32_t bin = (uint32_t)floorf((n_fft + 1U) * hz / sr);
+    if (bin > n_bins - 1U) bin = n_bins - 1U;
+    bin_points[m] = bin;
+  }
+
+  /* zero filters */
+  for (m = 0U; m < n_mels; m++)
+  {
+    for (k = 0U; k < n_bins; k++)
+    {
+      s_lm_filters[m][k] = 0.0f;
+    }
+  }
+
+  for (m = 0U; m < n_mels; m++)
+  {
+    uint32_t start = bin_points[m];
+    uint32_t center = bin_points[m + 1U];
+    uint32_t end = bin_points[m + 2U];
+    if (center < start) center = start;
+    if (end < center) end = center;
+    for (k = start; k <= end && k < n_bins; k++)
+    {
+      float32_t w;
+      if (k <= center)
+      {
+        float32_t denom = (float32_t)(center - start);
+        w = (denom > 0.0f) ? ((float32_t)(k - start) / denom) : 0.0f;
+      }
+      else
+      {
+        float32_t denom = (float32_t)(end - center);
+        w = (denom > 0.0f) ? ((float32_t)(end - k) / denom) : 0.0f;
+      }
+      if (w < 0.0f) w = 0.0f;
+      s_lm_filters[m][k] = w;
+    }
+  }
+
+  s_lm_ready = 1U;
+}
+
+void Extract_LogMelSpectrogram(float32_t *pAudioBuffer, float32_t *pOut64x63)
+{
+  uint32_t i, m, fidx;
+  const uint32_t n_fft = DSP_LM_FFT_SIZE;
+  const uint32_t hop = DSP_LM_HOP_LENGTH;
+  const uint32_t frames = DSP_LM_FRAMES;
+  const uint32_t n_mels = DSP_LM_MEL_BINS;
+  const uint32_t n_bins = n_fft / 2U;
+
+  static float32_t spectro[DSP_LM_MEL_BINS * DSP_LM_FRAMES];
+
+  if (!s_lm_ready)
+  {
+    DSP_InitLogMel();
+  }
+
+  /* center padding by n_fft/2 (simple zero padding) */
+  const uint32_t pad = n_fft / 2U;
+  uint32_t padded_len = DSP_LM_SAMPLES_PER_CLIP + 2U * pad;
+  static float32_t padded[ DSP_LM_SAMPLES_PER_CLIP + DSP_LM_FFT_SIZE ];
+  memset(padded, 0, sizeof(padded));
+  memcpy(padded + pad, pAudioBuffer, DSP_LM_SAMPLES_PER_CLIP * sizeof(float32_t));
+
+  arm_rfft_fast_instance_f32 rfft;
+  (void)arm_rfft_fast_init_f32(&rfft, n_fft);
+
+  /* for each frame */
+  for (fidx = 0U; fidx < frames; fidx++)
+  {
+    uint32_t start = fidx * hop;
+    /* copy windowed frame */
+    for (i = 0U; i < n_fft; i++)
+    {
+      s_lm_fft_in[i] = padded[start + i] * s_lm_window[i];
+    }
+
+    arm_rfft_fast_f32(&rfft, s_lm_fft_in, s_lm_fft_out, 0U);
+    /* compute magnitude for first n_bins (ignore Nyquist bin ordering differences) */
+    arm_cmplx_mag_f32(s_lm_fft_out, s_lm_power, n_bins);
+    /* power */
+    for (i = 0U; i < n_bins; i++)
+    {
+      s_lm_power[i] = s_lm_power[i] * s_lm_power[i];
+    }
+
+    /* apply mel filters */
+    for (m = 0U; m < n_mels; m++)
+    {
+      float32_t sum = 0.0f;
+      uint32_t k;
+      for (k = 0U; k < n_bins; k++)
+      {
+        sum += s_lm_power[k] * s_lm_filters[m][k];
+      }
+      spectro[m * frames + fidx] = sum;
+    }
+  }
+
+  /* convert to dB: power_to_db(S, ref=np.max, amin=1e-10, top_db=80) */
+  const float32_t amin = 1.0e-10f;
+  float32_t maxv = 0.0f;
+  for (i = 0U; i < (n_mels * frames); i++)
+  {
+    if (spectro[i] > maxv) maxv = spectro[i];
+  }
+  if (maxv < amin) maxv = amin;
+
+  for (i = 0U; i < (n_mels * frames); i++)
+  {
+    float32_t val = spectro[i];
+    if (val < amin) val = amin;
+    float32_t db = 10.0f * log10f(val) - 10.0f * log10f(maxv);
+    /* clip to [-80, 0] */
+    if (db < -80.0f) db = -80.0f;
+    if (db > 0.0f) db = 0.0f;
+    pOut64x63[i] = db;
+  }
+}
+
+
 static float32_t s_window[DSP_FFT_SIZE];
 static float32_t s_fft_in[DSP_FFT_SIZE];
 static float32_t s_fft_out[DSP_FFT_SIZE];

@@ -221,6 +221,10 @@ static void DSP_AI_Task(void *argument)
 {
   float32_t audio_float[DSP_FFT_SIZE];
   MfccMessage mfcc_msg;
+  /* long buffer for 2s clips used by log-mel frontend */
+  static float32_t long_audio[DSP_LM_SAMPLES_PER_CLIP];
+  static uint32_t long_pos = 0U;
+  static float32_t lm_features[DSP_LM_FEATURES];
   TelemetryMessage telemetry_msg;
   uint8_t vad_raw;
   uint8_t vad_active;
@@ -243,6 +247,16 @@ static void DSP_AI_Task(void *argument)
       audio_float[i] = (float32_t)g_shared_audio_frame.audio[0][i];
     }
 
+    /* accumulate into long buffer (non-overlapping) */
+    if (long_pos + DSP_FFT_SIZE <= DSP_LM_SAMPLES_PER_CLIP)
+    {
+      for (i = 0U; i < DSP_FFT_SIZE; i++)
+      {
+        long_audio[long_pos + i] = audio_float[i];
+      }
+      long_pos += DSP_FFT_SIZE;
+    }
+
     g_shared_audio_frame.ready = 0U;
 
     vad_raw = DSP_VadIsActive(audio_float);
@@ -252,11 +266,16 @@ static void DSP_AI_Task(void *argument)
     DSP_UpdateMfccStats(mfcc_msg.mfcc);
     DSP_NormalizeAndSmooth(mfcc_msg.mfcc, mfcc_msg.mfcc);
 
-    if (vad_active != 0U)
+    /* If VAD active and we have a full 2s buffer, run log-mel frontend + inference */
+    if ((vad_active != 0U) && (long_pos >= DSP_LM_SAMPLES_PER_CLIP))
     {
-      Run_Audio_Inference(mfcc_msg.mfcc, &telemetry_msg.predicted_class, &telemetry_msg.confidence);
+      /* produce 64x63 log-mel features */
+      Extract_LogMelSpectrogram(long_audio, lm_features);
+      Run_Audio_Inference(lm_features, &telemetry_msg.predicted_class, &telemetry_msg.confidence);
       telemetry_msg.doa = Calculate_DOA(audio_float, DSP_FFT_SIZE);
       (void)osMessageQueuePut(g_telemetry_queue, &telemetry_msg, 0U, 0U);
+      /* reset buffer for next capture */
+      long_pos = 0U;
     }
   }
 }

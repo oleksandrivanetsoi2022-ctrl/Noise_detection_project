@@ -2,7 +2,7 @@
 
 #include "main.h"
 #include "sai_a.h"
-#include "shared_audio.h"
+#include "../../../Common/Inc/shared_audio.h"
 
 #define AUDIO_DMA_EVENT_HALF 0U
 #define AUDIO_DMA_EVENT_FULL 1U

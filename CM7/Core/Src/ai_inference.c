@@ -77,40 +77,58 @@ void Run_Audio_Inference(float *mfcc_features, uint8_t *predicted_class, float *
       return;
     }
   }
-
-  /* Simple int8 quantization: clamp float features to [-128, 127]. */
-  for (i = 0U; i < AI_NETWORK_IN_1_SIZE; i++)
+  /* Use network tensor metadata for quantization (scale + zero_point) */
   {
-    float x = mfcc_features[i];
-    int32_t q = (int32_t)lrintf(x);
-    if (q > 127)
-    {
-      q = 127;
-    }
-    else if (q < -128)
-    {
-      q = -128;
-    }
-    s_in_data[i] = (ai_i8)q;
-  }
+    /* default fallback values */
+    float in_scale = 1.0f;
+    int32_t in_zp = 0;
+    float out_scale = 1.0f;
+    int32_t out_zp = 0;
 
-  if (ai_network_run(s_network, s_inputs, s_outputs) <= 0)
-  {
-    *predicted_class = (uint8_t)AI_CLASS_BACKGROUND;
-    *confidence = 0.0f;
+    /* read metadata from ai_buffer if available */
+    if (s_inputs && s_inputs[0].meta_info) {
+      in_scale = AI_BUFFER_META_INFO_INTQ_GET_SCALE(s_inputs[0].meta_info, 0);
+      in_zp = AI_BUFFER_META_INFO_INTQ_GET_ZEROPOINT(s_inputs[0].meta_info, 0);
+    }
+    if (s_outputs && s_outputs[0].meta_info) {
+      out_scale = AI_BUFFER_META_INFO_INTQ_GET_SCALE(s_outputs[0].meta_info, 0);
+      out_zp = AI_BUFFER_META_INFO_INTQ_GET_ZEROPOINT(s_outputs[0].meta_info, 0);
+    }
+
+    for (i = 0U; i < AI_NETWORK_IN_1_SIZE; i++)
+    {
+      float x = mfcc_features[i];
+      /* q = round(x / scale) + zero_point */
+      int32_t q = (int32_t)lrintf(x / in_scale) + in_zp;
+      if (q > 127) q = 127;
+      else if (q < -128) q = -128;
+      s_in_data[i] = (ai_i8)q;
+    }
+
+    /* run network */
+    if (ai_network_run(s_network, s_inputs, s_outputs) <= 0)
+    {
+      *predicted_class = (uint8_t)AI_CLASS_BACKGROUND;
+      *confidence = 0.0f;
+      return;
+    }
+
+    /* find max on dequantized output values */
+    float max_f = -3.40282347e+38F; /* -FLT_MAX without including float.h */
+    int32_t max_i = 0;
+    for (i = 0U; i < AI_NETWORK_OUT_1_SIZE; i++)
+    {
+      int32_t q = (int32_t)s_out_data[i];
+      float f = out_scale * (float)(q - out_zp);
+      if (f > max_f) {
+        max_f = f;
+        max_i = (int32_t)i;
+      }
+    }
+
+    *predicted_class = (uint8_t)max_i;
+    /* output softmax expected in [0..1] after dequantization */
+    *confidence = max_f;
     return;
   }
-
-  max_val = s_out_data[0];
-  for (i = 1U; i < AI_NETWORK_OUT_1_SIZE; i++)
-  {
-    if (s_out_data[i] > max_val)
-    {
-      max_val = s_out_data[i];
-      max_idx = (int32_t)i;
-    }
-  }
-
-  *predicted_class = (uint8_t)max_idx;
-  *confidence = (float)max_val / 127.0f;
 }
