@@ -119,28 +119,6 @@ void HAL_SAI_MspInit(SAI_HandleTypeDef* hsai)
     GPIO_InitStruct.Alternate = GPIO_AF6_SAI1;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    __HAL_RCC_DMA1_CLK_ENABLE();
-
-    hdma_sai1_a.Instance = DMA1_Stream0;
-    hdma_sai1_a.Init.Request = DMA_REQUEST_SAI1_A;
-    hdma_sai1_a.Init.Direction = DMA_PERIPH_TO_MEMORY;
-    hdma_sai1_a.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_sai1_a.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_sai1_a.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-    hdma_sai1_a.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
-    hdma_sai1_a.Init.Mode = DMA_CIRCULAR;
-    hdma_sai1_a.Init.Priority = DMA_PRIORITY_HIGH;
-    hdma_sai1_a.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-    if (HAL_DMA_Init(&hdma_sai1_a) != HAL_OK)
-    {
-      Error_Handler();
-    }
-
-    __HAL_LINKDMA(hsai, hdmarx, hdma_sai1_a);
-
-    HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 6, 0);
-    HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
-
     }
     if(hsai->Instance==SAI1_Block_B)
     {
@@ -170,28 +148,6 @@ void HAL_SAI_MspInit(SAI_HandleTypeDef* hsai)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF6_SAI1;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-    __HAL_RCC_DMA1_CLK_ENABLE();
-
-    hdma_sai1_b.Instance = DMA1_Stream1;
-    hdma_sai1_b.Init.Request = DMA_REQUEST_SAI1_B;
-    hdma_sai1_b.Init.Direction = DMA_PERIPH_TO_MEMORY;
-    hdma_sai1_b.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_sai1_b.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_sai1_b.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-    hdma_sai1_b.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
-    hdma_sai1_b.Init.Mode = DMA_CIRCULAR;
-    hdma_sai1_b.Init.Priority = DMA_PRIORITY_HIGH;
-    hdma_sai1_b.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-    if (HAL_DMA_Init(&hdma_sai1_b) != HAL_OK)
-    {
-      Error_Handler();
-    }
-
-    __HAL_LINKDMA(hsai, hdmarx, hdma_sai1_b);
-
-    HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 6, 0);
-    HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
 
     }
 }

@@ -42,6 +42,8 @@
 /* USER CODE BEGIN PD */
 
 #define DSP_VAD_ENERGY_THRESHOLD  500.0f
+#define DSP_VAD_ON_FRAMES         3U
+#define DSP_VAD_OFF_FRAMES        5U
 #define DSP_MFCC_EWMA_ALPHA       0.98f
 #define DSP_MFCC_SMOOTH_ALPHA     0.85f
 #define DSP_MFCC_NORM_EPS         1.0e-6f
@@ -75,6 +77,23 @@ static float s_mfcc_var[DSP_MFCC_FEATURES];
 static float s_mfcc_smooth[DSP_MFCC_FEATURES];
 static uint8_t s_mfcc_stats_ready = 0U;
 
+typedef struct
+{
+  uint8_t on_count;
+  uint8_t off_count;
+  uint8_t state;
+  uint8_t on_frames;
+  uint8_t off_frames;
+} VadState;
+
+static VadState s_vad_state = {
+  .on_count = 0U,
+  .off_count = 0U,
+  .state = 0U,
+  .on_frames = DSP_VAD_ON_FRAMES,
+  .off_frames = DSP_VAD_OFF_FRAMES
+};
+
 /* USER CODE END Variables */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -88,12 +107,55 @@ static void TelemetryTask(void *argument);
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
 
+static void DSP_InvalidateSharedAudio(void)
+{
+  uint32_t addr = (uint32_t)&g_shared_audio_frame;
+  uint32_t size = sizeof(g_shared_audio_frame);
+  uint32_t start = addr & ~31U;
+  uint32_t end = addr + size;
+  uint32_t length = end - start;
+
+  SCB_InvalidateDCache_by_Addr((uint32_t *)start, (int32_t)length);
+}
+
 static uint8_t DSP_VadIsActive(const float32_t *audio_frame)
 {
   float32_t energy = 0.0f;
   arm_power_f32(audio_frame, DSP_FFT_SIZE, &energy);
   energy = energy / (float32_t)DSP_FFT_SIZE;
   return (energy > DSP_VAD_ENERGY_THRESHOLD) ? 1U : 0U;
+}
+
+static uint8_t DSP_VadDebounce(VadState *state, uint8_t vad_raw)
+{
+  if (vad_raw != 0U)
+  {
+    if (state->on_count < 255U)
+    {
+      state->on_count++;
+    }
+    state->off_count = 0U;
+
+    if (state->on_count >= state->on_frames)
+    {
+      state->state = 1U;
+    }
+  }
+  else
+  {
+    if (state->off_count < 255U)
+    {
+      state->off_count++;
+    }
+    state->on_count = 0U;
+
+    if (state->off_count >= state->off_frames)
+    {
+      state->state = 0U;
+    }
+  }
+
+  return state->state;
 }
 
 static void DSP_UpdateMfccStats(const float32_t *mfcc)
@@ -160,6 +222,7 @@ static void DSP_AI_Task(void *argument)
   float32_t audio_float[DSP_FFT_SIZE];
   MfccMessage mfcc_msg;
   TelemetryMessage telemetry_msg;
+  uint8_t vad_raw;
   uint8_t vad_active;
   uint32_t i;
 
@@ -173,7 +236,8 @@ static void DSP_AI_Task(void *argument)
       continue;
     }
 
-    /* If DCache is enabled, clean/invalidate shared buffers before use. */
+    DSP_InvalidateSharedAudio();
+
     for (i = 0U; i < DSP_FFT_SIZE; i++)
     {
       audio_float[i] = (float32_t)g_shared_audio_frame.audio[0][i];
@@ -181,7 +245,8 @@ static void DSP_AI_Task(void *argument)
 
     g_shared_audio_frame.ready = 0U;
 
-    vad_active = DSP_VadIsActive(audio_float);
+    vad_raw = DSP_VadIsActive(audio_float);
+    vad_active = DSP_VadDebounce(&s_vad_state, vad_raw);
     Extract_MFCC(audio_float, mfcc_msg.mfcc);
 
     DSP_UpdateMfccStats(mfcc_msg.mfcc);
