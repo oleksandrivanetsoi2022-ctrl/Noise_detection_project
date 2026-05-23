@@ -1,6 +1,6 @@
 ST Edge AI Core v2.2.0-20266 2adc00962
-Created date          : 2026-05-18 21:53:38
-Parameters            : generate --target stm32h7 --name network -m D:/STM/projects/Noise_Detection_project/training/traffic_model_int8.tflite --compression none --verbosity 1 --workspace C:/Users/D/AppData/Local/Temp/mxAI_workspace18222561026290015826520447463279433 --output C:/Users/D/.stm32cubemx/network_output
+Created date          : 2026-05-18 22:48:27
+Parameters            : generate --target stm32h7 --name network -m D:/STM/projects/Noise_Detection_project/training/traffic_model_int8.tflite --compression none --verbosity 1 --workspace C:/Users/D/AppData/Local/Temp/mxAI_workspace18551510304300015878770079724635878 --output C:/Users/D/.stm32cubemx/network_output
 
 Exec/report summary (generate)
 -------------------------------------------------------------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ compression        :   none
 options            :   allocate-inputs, allocate-outputs                                                                             
 optimization       :   balanced                                                                                                      
 target/series      :   stm32h7                                                                                                       
-workspace dir      :   C:\Users\D\AppData\Local\Temp\mxAI_workspace18222561026290015826520447463279433                               
+workspace dir      :   C:\Users\D\AppData\Local\Temp\mxAI_workspace18551510304300015878770079724635878                               
 output dir         :   C:\Users\D\.stm32cubemx\network_output                                                                        
 model_fmt          :   ss/sa per channel                                                                                             
 model_name         :   traffic_model_int8                                                                                            

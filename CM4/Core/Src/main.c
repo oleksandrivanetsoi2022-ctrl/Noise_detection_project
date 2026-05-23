@@ -25,6 +25,7 @@
 
 #include "board_init.h"
 #include "board_clock.h"
+#include "ipc_cm4.h"
 
 /* USER CODE END Includes */
 
@@ -129,6 +130,9 @@ int main(void)
   /* Initialize all configured peripherals */
   Board_GPIO_Init();
   /* USER CODE BEGIN 2 */
+
+  /* Initialize IPC producer (shared SRAM3 buffer) */
+  IPC_ProducerInit();
 
   osKernelInitialize();
   MX_FREERTOS_Init();

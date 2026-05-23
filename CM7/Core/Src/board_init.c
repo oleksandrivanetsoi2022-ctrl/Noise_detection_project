@@ -1,6 +1,7 @@
 #include "board_init.h"
 
 #include "main.h"
+#include "lora_hal.h"
 
 static COM_InitTypeDef s_bsp_com_init;
 
@@ -52,6 +53,33 @@ void Board_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+
+  /* LoRa control pins: NSS=PA4 (output), RESET=PB0 (output), BUSY=PB1 (input), DIO1=PB2 (EXTI) */
+  /* PA4 NSS */
+  GPIO_InitStruct.Pin = GPIO_PIN_4;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /* PB0 RESET */
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /* PB1 BUSY */
+  GPIO_InitStruct.Pin = GPIO_PIN_1;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /* PB2 DIO1 as EXTI on rising edge */
+  GPIO_InitStruct.Pin = GPIO_PIN_2;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
 
 void Board_BSP_Init(void)
@@ -71,4 +99,7 @@ void Board_BSP_Init(void)
   {
     Error_Handler();
   }
+  /* Initialize LoRa hardware and radio */
+#include "lora_app.h"
+  LoRa_Init();
 }

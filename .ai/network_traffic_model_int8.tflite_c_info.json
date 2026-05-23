@@ -1349,44 +1349,44 @@
   ],
   "environment": {
     "generated_model": {
-      "generated_time": "2026-05-18T21:53:37+0300",
+      "generated_time": "2026-05-18T22:48:26+0300",
       "model_files": [
         {
           "name": "network_data_params.h",
-          "signature": "0xf75df37c0ac3d7c6618b25d86a1aa5e3"
+          "signature": "0x1d05f11ffbc3a94dad160dfb28c9ea7d"
         },
         {
           "name": "network_data_params.c",
-          "signature": "0x52c901da43cf21e24f7d2e5b13aadf91"
+          "signature": "0x92b7853ed4b696b783356ab18a6e9565"
         },
         {
           "name": "network_data.h",
-          "signature": "0x3e2f119e401b3207c6a5aabca56070a0"
+          "signature": "0xe5a20633311bb2b6c41bde6c1b8d0885"
         },
         {
           "name": "network_data.c",
-          "signature": "0x430b99e35d13e48f006be624664be120"
+          "signature": "0x3aca17e769585e7127ea75283046797f"
         },
         {
           "name": "network_config.h",
-          "signature": "0x9c9068180a1bb87379fb3515d791a8a9"
+          "signature": "0x95ec422181451a2b14a642945d436511"
         },
         {
           "name": "network.h",
-          "signature": "0x51e47d83bdb82e541b0cb32f2296ccc0"
+          "signature": "0x0b0bfee36b9a3392024d4fba01e9d5fd"
         },
         {
           "name": "network.c",
-          "signature": "0xae7ba612732d97490b3253192e732858"
+          "signature": "0xd764d6ea945a3fc3413d59cfa0a182f4"
         }
       ],
       "name": "network"
     },
-    "network_signature": "0xa4aabcbbc50fa9b5",
+    "network_signature": "0x749c5a1944d92aa4",
     "test_name": "",
     "tools": [
       {
-        "arguments": "generate --target stm32h7 --name network -m D:/STM/projects/Noise_Detection_project/training/traffic_model_int8.tflite --compression none --verbosity 1 --workspace C:/Users/D/AppData/Local/Temp/mxAI_workspace18222561026290015826520447463279433 --output C:/Users/D/.stm32cubemx/network_output",
+        "arguments": "generate --target stm32h7 --name network -m D:/STM/projects/Noise_Detection_project/training/traffic_model_int8.tflite --compression none --verbosity 1 --workspace C:/Users/D/AppData/Local/Temp/mxAI_workspace18551510304300015878770079724635878 --output C:/Users/D/.stm32cubemx/network_output",
         "environment": [
           "STATS_TYPE=X-CUBE-AI"
         ],

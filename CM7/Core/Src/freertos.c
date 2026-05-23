@@ -21,6 +21,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "main.h"
+#include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -29,7 +30,7 @@
 #include "ai_inference.h"
 #include "dsp_processing.h"
 #include "lora_app.h"
-#include "shared_audio.h"
+#include "../../../Common/Inc/shared_audio.h"
 
 /* USER CODE END Includes */
 

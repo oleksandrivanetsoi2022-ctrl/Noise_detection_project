@@ -3,6 +3,11 @@
 #include <math.h>
 #include <string.h>
 
+/* Mathematical constants */
+#ifndef PI
+#define PI 3.14159265358979323846f
+#endif
+
 /* Log-Mel frontend static data */
 static float32_t s_lm_window[DSP_LM_FFT_SIZE];
 static float32_t s_lm_fft_in[DSP_LM_FFT_SIZE];
