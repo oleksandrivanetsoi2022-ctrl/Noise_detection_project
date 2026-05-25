@@ -17,6 +17,7 @@ db_data/
 
 # VS Code
 .vscode/
+AUDIO_PIPELINE_CODE_BLOCKS.md
 
 # OS
 .DS_Store
