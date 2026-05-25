@@ -103,7 +103,7 @@ void LoRa_Pack_And_Send(uint8_t vehicle_class, float confidence, uint16_t doa_an
   conf_q = (uint16_t)(confidence * 1023.0f);
   doa_q = (uint16_t)(doa_angle % 360U);
 
-  packed0 = ((uint32_t)(vehicle_class & 0x03U)) |
+  packed0 = ((uint32_t)(vehicle_class & 0x07U)) |
             ((uint32_t)(conf_q & 0x03FFU) << 2U) |
             ((uint32_t)(doa_q & 0x03FFU) << 12U);
 

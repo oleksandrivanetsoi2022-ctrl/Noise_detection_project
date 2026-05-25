@@ -11,7 +11,7 @@
 **/*.hex
 **/*.bin
 **/startup/*.o
-
+db_data/
 # CubeMX metadata
 *.mxproject
 

@@ -49,3 +49,21 @@ int _isatty_r(struct _reent *r, int fd)
   (void)r; (void)fd;
   return 1;
 }
+
+/* Minimal implementations for process control syscalls to satisfy newlib
+ * Some libc-nano objects reference _getpid_r and _kill_r; provide simple
+ * stubs so the linker doesn't warn. Adjust if your app requires different
+ * behavior.
+ */
+int _getpid_r(struct _reent *r)
+{
+  (void)r;
+  return 1; /* single process */
+}
+
+int _kill_r(struct _reent *r, int pid, int sig)
+{
+  (void)r; (void)pid; (void)sig;
+  r->_errno = ENOSYS;
+  return -1;
+}
